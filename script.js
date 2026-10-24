@@ -126,38 +126,36 @@
   setupTabs(".track-tab", ".track-panel");
   setupTabs(".map-node", ".fig-panel");
 
-  /* ---------- Relógio da aula ---------- */
+  /* ---------- Relógio da aula ----------
+     A aula não tem duração fixa. Cada parte ocupa uma fatia da aula
+     (from/to em fração do total) e os minutos saem dessa fatia. */
 
   var phases = [
     {
       name: "Abertura",
-      start: 0,
-      end: 3,
-      range: "00:00 a 03:00",
+      from: 0,
+      to: 0.05,
       desc: "O que a aula cobre, por que o tema importa e como ele costuma ser cobrado nas provas.",
       pdf: "No material em breve: a abertura fica de fora do PDF."
     },
     {
       name: "Conteúdo",
-      start: 3,
-      end: 40,
-      range: "03:00 a 40:00",
-      desc: "De 4 a 5 blocos de 8 a 10 minutos. Cada bloco traz conceito, exemplo e um mini exercício.",
+      from: 0.05,
+      to: 2 / 3,
+      desc: "Blocos de 8 a 10 minutos, cada um com conceito, exemplo e um mini exercício.",
       pdf: "No material em breve: vira resumo esquematizado, com o mesmo desenho do vídeo."
     },
     {
       name: "Exercícios",
-      start: 40,
-      end: 55,
-      range: "40:00 a 55:00",
+      from: 2 / 3,
+      to: 11 / 12,
       desc: "Questões de provas reais, com ano e fonte, resolvidas passo a passo, e o porquê de cada etapa.",
       pdf: "No material em breve: lista de exercícios com resolução comentada."
     },
     {
       name: "Resumo",
-      start: 55,
-      end: 60,
-      range: "55:00 a 60:00",
+      from: 11 / 12,
+      to: 1,
       desc: "O assunto inteiro em um esquema, com as conexões entre os conceitos e a chamada para o material de revisão.",
       pdf: "No material em breve: a página final de revisão, pronta para imprimir."
     }
@@ -172,26 +170,56 @@
   var phasePdf = document.querySelector(".phase-pdf");
   var segments = Array.prototype.slice.call(document.querySelectorAll(".seg"));
   var legendButtons = Array.prototype.slice.call(document.querySelectorAll(".legend-btn"));
+  var durationButtons = Array.prototype.slice.call(document.querySelectorAll(".duration-btn"));
+  var rulerLabels = Array.prototype.slice.call(document.querySelectorAll(".clock-ruler span"));
+
+  /* Cortes da aula em minutos: cada parte arredonda a própria fatia,
+     com pelo menos 1 minuto e espaço guardado para as partes seguintes. */
+  function boundsFor(total) {
+    var cuts = [0];
+    phases.forEach(function (phase, index) {
+      if (index === 0) return;
+      var room = total - (phases.length - index);
+      var cut = Math.round(phase.from * total);
+      cuts.push(Math.min(Math.max(cut, cuts[index - 1] + 1), room));
+    });
+    cuts.push(total);
+    return cuts;
+  }
+
+  var totalMinutes = clockInput ? Number(clockInput.max) || 60 : 60;
+  var cuts = boundsFor(totalMinutes);
+  var currentMinute = clockInput ? Number(clockInput.value) || 0 : 0;
 
   function phaseFor(minute) {
     for (var i = 0; i < phases.length; i += 1) {
-      if (minute >= phases[i].start && minute < phases[i].end) return { phase: phases[i], index: i };
+      if (minute < cuts[i + 1]) return { phase: phases[i], index: i };
     }
     return { phase: phases[phases.length - 1], index: phases.length - 1 };
   }
 
-  function updateClock(minute, fromInput) {
-    var result = phaseFor(minute);
+  function rangeFor(index) {
+    return cuts[index] + " a " + cuts[index + 1] + " min";
+  }
+
+  function renderClock() {
+    currentMinute = Math.max(0, Math.min(totalMinutes, Math.round(currentMinute)));
+
+    var result = phaseFor(currentMinute);
     var phase = result.phase;
     var index = result.index;
-    var position = (minute / 60) * 100;
 
-    if (clockInput && !fromInput) clockInput.value = String(minute);
-    if (clockMarker) clockMarker.style.left = position + "%";
-    if (clockTime) clockTime.textContent = minute >= 60 ? "60 min, fim" : minute + " min de 60";
+    if (clockInput) clockInput.value = String(currentMinute);
+    if (clockMarker) clockMarker.style.left = (currentMinute / totalMinutes) * 100 + "%";
+    if (clockTime) {
+      clockTime.textContent =
+        currentMinute >= totalMinutes
+          ? totalMinutes + " min, fim"
+          : currentMinute + " min de " + totalMinutes;
+    }
 
     if (phaseTitle) phaseTitle.textContent = phase.name;
-    if (phaseRange) phaseRange.textContent = phase.range;
+    if (phaseRange) phaseRange.textContent = rangeFor(index);
     if (phaseDesc) phaseDesc.textContent = phase.desc;
     if (phasePdf) phasePdf.innerHTML = phase.pdf.replace("em breve", "<strong>em breve</strong>");
 
@@ -204,22 +232,73 @@
     });
 
     if (clockInput) {
-      clockInput.setAttribute("aria-valuetext", "Minuto " + minute + " de 60: " + phase.name);
+      clockInput.setAttribute(
+        "aria-valuetext",
+        "Minuto " + currentMinute + " de " + totalMinutes + ": " + phase.name
+      );
     }
   }
 
+  function paintTimeline() {
+    cuts = boundsFor(totalMinutes);
+
+    if (clockInput) clockInput.max = String(totalMinutes);
+
+    // a largura de cada parte vem da mesma fatia que gera os minutos
+    segments.forEach(function (segment, index) {
+      segment.style.flexGrow = String((phases[index].to - phases[index].from) * 100);
+    });
+
+    rulerLabels.forEach(function (label, index) {
+      label.textContent = String(Math.round((totalMinutes * index) / (rulerLabels.length - 1)));
+    });
+
+    legendButtons.forEach(function (button, index) {
+      var start = cuts[index];
+      var end = cuts[index + 1];
+      var label = button.querySelector("em");
+      if (label) label.textContent = start + " a " + end;
+      button.dataset.minute = String(Math.min(end - 1, start + Math.floor((end - start) / 2)));
+    });
+  }
+
+  function selectDuration(total) {
+    var share = totalMinutes ? currentMinute / totalMinutes : 0;
+    totalMinutes = total;
+    paintTimeline();
+    currentMinute = Math.round(share * totalMinutes);
+
+    durationButtons.forEach(function (button) {
+      button.setAttribute(
+        "aria-pressed",
+        Number(button.dataset.total) === totalMinutes ? "true" : "false"
+      );
+    });
+
+    renderClock();
+  }
+
   if (clockInput) {
+    paintTimeline();
+    renderClock();
+
     clockInput.addEventListener("input", function () {
-      updateClock(Number(clockInput.value), true);
+      currentMinute = Number(clockInput.value);
+      renderClock();
     });
 
     legendButtons.forEach(function (button) {
       button.addEventListener("click", function () {
-        updateClock(Number(button.dataset.minute), false);
+        currentMinute = Number(button.dataset.minute);
+        renderClock();
       });
     });
 
-    updateClock(Number(clockInput.value), true);
+    durationButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        selectDuration(Number(button.dataset.total));
+      });
+    });
   }
 
   /* ---------- Seção atual ---------- */
