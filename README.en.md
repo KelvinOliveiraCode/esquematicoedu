@@ -16,7 +16,7 @@ In production. Published at <https://kelvinoliveiracode.github.io/esquematicoedu
 
 - **Hero and channel presentation** ("one long class, quite literally").
 - **Seven study tracks** and a library of classes.
-- **Production section**: how the class is born (in HTML) and becomes a video.
+- Production section: how the class is born (in HTML) and becomes a video.
 - **Supporting materials** that go from the screen to paper.
 - **FAQ** ("before you start watching").
 - **YouTube channel link**.
@@ -33,7 +33,7 @@ A single-page static site: `index.html` (670 lines) + `styles.css` (2,014 lines)
 
 ## Repository layout
 
-```
+```text
 esquematicoedu/
 ├── index.html    # the page (670 lines)
 ├── styles.css    # styling (2,014 lines)
@@ -57,8 +57,8 @@ There are no automated tests or CI in this repository (no `package.json` or work
 
 ## Technical decisions and trade-offs
 
-- **Zero framework, single HTML**: a light page, easy to publish on GitHub Pages; content edited directly in the HTML.
-- **Vanilla JS interactivity**: effects and scrolling with no external dependencies.
+- Zero framework, single HTML: a light page, easy to publish on GitHub Pages; content edited directly in the HTML.
+- Vanilla JS interactivity: effects and scrolling with no external dependencies.
 
 ## Known limitations and roadmap
 
@@ -73,4 +73,4 @@ An individual project by Kelvin Oliveira, built with orchestrated AI agents and 
 
 This repository has **no license file** (no `LICENSE`). Copyright (c) Kelvin Rebelo de Oliveira.
 
-**Author**: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [YouTube — EsquemáticoEdu](https://www.youtube.com/channel/UC7IBK0kE-myJgRuOrYZA1PQ)
+**Author**: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [YouTube, EsquemáticoEdu](https://www.youtube.com/channel/UC7IBK0kE-myJgRuOrYZA1PQ)

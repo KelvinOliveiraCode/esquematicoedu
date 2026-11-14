@@ -16,7 +16,7 @@ Em produção. Publicado em <https://kelvinoliveiracode.github.io/esquematicoedu
 
 - **Hero e apresentação do canal** ("uma aula longa, no sentido literal").
 - **Sete trilhas de estudo** e acervo de aulas.
-- **Seção de produção**: como a aula nasce (em HTML) e vira vídeo.
+- Seção de produção: como a aula nasce (em HTML) e vira vídeo.
 - **Materiais de apoio** que saem da tela para o papel.
 - **FAQ** ("antes de começar a assistir").
 - **Link para o canal no YouTube**.
@@ -33,7 +33,7 @@ Site estático de página única: `index.html` (670 linhas) + `styles.css` (2.01
 
 ## Estrutura do repositório
 
-```
+```text
 esquematicoedu/
 ├── index.html    # a página (670 linhas)
 ├── styles.css    # estilo (2.014 linhas)
@@ -57,8 +57,8 @@ Não há testes automatizados nem CI neste repositório (ausência de `package.j
 
 ## Decisões técnicas e trade-offs
 
-- **Zero framework, um único HTML**: página leve e fácil de publicar no GitHub Pages; conteúdo editado diretamente no HTML.
-- **Interatividade em JS vanilla**: efeitos e rolagem sem dependências externas.
+- Zero framework, um único HTML: página leve e fácil de publicar no GitHub Pages; conteúdo editado diretamente no HTML.
+- Interatividade em JS vanilla: efeitos e rolagem sem dependências externas.
 
 ## Limitações conhecidas e roadmap
 
@@ -73,4 +73,4 @@ Projeto individual de Kelvin Oliveira, construído com agentes de IA orquestrado
 
 Este repositório **não possui arquivo de licença** (sem `LICENSE`). Copyright (c) Kelvin Rebelo de Oliveira.
 
-**Autor**: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [YouTube — EsquemáticoEdu](https://www.youtube.com/channel/UC7IBK0kE-myJgRuOrYZA1PQ)
+**Autor**: [Kelvin Oliveira](https://github.com/KelvinOliveiraCode) · [YouTube, EsquemáticoEdu](https://www.youtube.com/channel/UC7IBK0kE-myJgRuOrYZA1PQ)
